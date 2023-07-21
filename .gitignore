@@ -1,0 +1,27 @@
+.env
+.venv
+.idea
+.vscode
+settings.txt
+db-schemas.txt
+docket-settings.txt
+
+# Ignore Django-related files
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.swp
+*.log
+*.sqlite3
+db.sqlite3
+media/
+
+# Ignore Ubuntu-related files
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.DS_Store
+.vscode/
+
