@@ -1,13 +1,12 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework import status
 
 from accounts.permissions import IsAdmin, IsDispatcher
 
 from .models import Country, City, TrainType, Train, TrainSchedule, Seat, Ticket
 from .serializers import (
     CountrySerializer, CitySerializer, TrainTypeSerializer,
-    TrainSerializer, TrainScheduleSerializer, SeatSerializer, TicketSerializer, CountryDetailSerializer
+    TrainSerializer, TrainScheduleSerializer, SeatSerializer, TicketSerializer
 )
 
 
@@ -17,59 +16,59 @@ class CountryListCreateView(generics.ListCreateAPIView):
     permission_classes = (IsAdmin,)
 
 
-# class CountryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Country.objects.all()
-#     serializer_class = CountrySerializer
-#     permission_classes = (IsAdmin,)
-
-
 class CountryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     permission_classes = (IsAdmin,)
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return CountryDetailSerializer
-        return super().get_serializer_class()
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        data = serializer.data
-
-        response_data = {
-            "data": data,
-            "status": "Success",
-        }
-
-        return Response(response_data, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        response_data = {
-            "data": serializer.data,
-            "status": "Success",
-        }
-
-        return Response(response_data, status=status.HTTP_200_OK)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-
-        response_data = {
-            "status": "Success",
-            "message": "Country deleted successfully.",
-        }
-
-        return Response(response_data, status=status.HTTP_204_NO_CONTENT)
-
+# class CountryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Country.objects.all()
+#     serializer_class = CountrySerializer
+#     permission_classes = (IsAdmin,)
+#
+#     def get_serializer_class(self):
+#         if self.request.method == 'GET':
+#             return CountryDetailSerializer
+#         return super().get_serializer_class()
+#
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         data = serializer.data
+#
+#         response_data = {
+#             "data": data,
+#             "status": "Success",
+#         }
+#
+#         return Response(response_data, status=status.HTTP_200_OK)
+#
+#     def update(self, request, *args, **kwargs):
+#         partial = kwargs.pop('partial', False)
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance, data=request.data, partial=partial)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
+#
+#         response_data = {
+#             "data": serializer.data,
+#             "status": "Success",
+#         }
+#
+#         return Response(response_data, status=status.HTTP_200_OK)
+#
+#     def destroy(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         self.perform_destroy(instance)
+#
+#         response_data = {
+#             "status": "Success",
+#             "message": "Country deleted successfully.",
+#         }
+#
+#         return Response(response_data, status=status.HTTP_204_NO_CONTENT)
+#
 
 class CityListCreateView(generics.ListCreateAPIView):
     queryset = City.objects.all()
@@ -156,6 +155,10 @@ class TripHistoryView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         seats = self.get_queryset()
+
+        if not seats.exists():  # Check if the queryset is empty
+            return Response({"error": "Trip not found."}, status=status.HTTP_404_NOT_FOUND)
+
         booked_seats = seats.filter(is_booked=True).count()
         available_seats = seats.filter(is_booked=False).count()
 

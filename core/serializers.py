@@ -11,11 +11,11 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CountryDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Country
-        fields = ('id', 'code', 'name', 'population',
-                  'capital', 'language', 'currency')
+# class CountryDetailSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Country
+#         fields = ('id', 'code', 'name', 'population',
+#                   'capital', 'language', 'currency')
 
 
 class CitySerializer(serializers.ModelSerializer):
